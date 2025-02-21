@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_app/components/app_text_widget.dart';
+import 'package:flutter_app/features/safety_violation_all/safety_preview_again/safety_preview_again_screen.dart';
 import 'package:flutter_app/features/safety_violation_all/safety_violation/sefety_violation_controller.dart';
 import 'package:flutter_app/features/safety_violation_all/safety_violation_assignee/safety_preview_assignee/safety_preview_assignee_screen.dart';
 import 'package:flutter_app/features/safety_violation_all/safety_violation_details/safety_violation_details.dart';
@@ -233,7 +234,7 @@ class SefetyViolationScreen extends StatelessWidget {
 
                         if (sefetyViolationController.selectedOption.value ==
                             1) {
-                          Get.to(SafetyViolationDetails());
+                          Get.to(SafetyPreviewAgainScreen());
                         }
                       },
                       child: ListView.builder(
@@ -385,7 +386,9 @@ class SefetyViolationScreen extends StatelessWidget {
           width: SizeConfig.widthMultiplier * 36,
           height: SizeConfig.heightMultiplier * 6.5,
           child: FloatingActionButton(
-            onPressed: () {},
+            onPressed: () {
+              Get.to(SafetyViolationDetails());
+            },
             backgroundColor: AppColors.buttoncolor,
             elevation: 0,
             child: Row(

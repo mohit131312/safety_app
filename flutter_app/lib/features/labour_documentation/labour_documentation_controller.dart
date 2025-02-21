@@ -30,7 +30,7 @@ class LabourDocumentationController extends GetxController {
   var adharImageCount = 0.obs;
   var otherImageCount = 0.obs;
   var alllabourImgDataCount = 0.obs;
-  final maxPhotos = 3;
+  final maxPhotos = 1;
   final maxPhotos2 = 3;
 
   Future<void> pickadharImages() async {
@@ -95,4 +95,8 @@ class LabourDocumentationController extends GetxController {
       log('Removed image at index $index from Other Images. Remaining: ${otherImageCount.value}');
     }
   }
+
+  //---------------------
+  var selectedDoctType = ''.obs;
+  var selectedreasons = ''.obs;
 }

@@ -623,15 +623,15 @@ class LabourPreviewScreen extends StatelessWidget {
                                                   SizeConfig.heightMultiplier *
                                                       1,
                                             ),
-                                            Obx(
-                                              () => AppTextWidget(
-                                                  text: addLabourController
-                                                      .selectedrelation.value,
-                                                  fontSize:
-                                                      AppTextSize.textSizeSmall,
-                                                  fontWeight: FontWeight.w400,
-                                                  color: AppColors.primaryText),
-                                            ),
+                                            // Obx(
+                                            //   () => AppTextWidget(
+                                            //       text: addLabourController
+                                            //           .selectedrelation.value,
+                                            //       fontSize:
+                                            //           AppTextSize.textSizeSmall,
+                                            //       fontWeight: FontWeight.w400,
+                                            //       color: AppColors.primaryText),
+                                            // ),
                                             SizedBox(
                                               height:
                                                   SizeConfig.heightMultiplier *
@@ -923,7 +923,8 @@ class LabourPreviewScreen extends StatelessWidget {
                                             AppTextWidget(
                                                 text:
                                                     labourProfessDetailsController
-                                                        .selectedFirmname.value,
+                                                        .contractorCompanyName
+                                                        .value,
                                                 fontSize:
                                                     AppTextSize.textSizeSmall,
                                                 fontWeight: FontWeight.w400,
@@ -1181,12 +1182,16 @@ class LabourPreviewScreen extends StatelessWidget {
                                                 SizeConfig.heightMultiplier *
                                                     2.5,
                                           ),
-                                          AppTextWidget(
-                                              text: AppTexts.validity,
-                                              fontSize:
-                                                  AppTextSize.textSizeSmall,
-                                              fontWeight: FontWeight.w400,
-                                              color: AppColors.searchfeild),
+                                          Obx(
+                                            () => AppTextWidget(
+                                                text:
+                                                    labourDocumentationController
+                                                        .selectedDoctType.value,
+                                                fontSize:
+                                                    AppTextSize.textSizeSmall,
+                                                fontWeight: FontWeight.w400,
+                                                color: AppColors.primaryText),
+                                          ),
                                           SizedBox(
                                             height:
                                                 SizeConfig.heightMultiplier * 1,

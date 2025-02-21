@@ -7,8 +7,11 @@ import 'package:flutter_app/features/staff/staff_add/add_staff_screen.dart';
 import 'package:flutter_app/utils/app_color.dart';
 import 'package:flutter_app/utils/app_texts.dart';
 import 'package:flutter_app/utils/app_textsize.dart';
+import 'package:flutter_app/utils/loader_screen.dart';
+import 'package:flutter_app/utils/logout_user.dart';
 import 'package:flutter_app/utils/size_config.dart';
 import 'package:get/get.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class InductionTrainingScreen extends StatelessWidget {
   InductionTrainingScreen({super.key});
@@ -17,120 +20,146 @@ class InductionTrainingScreen extends StatelessWidget {
   final InductionTrainingController inductionTrainingController =
       Get.put(InductionTrainingController());
 
-  final List<Map<String, String>> gridItems = [
-    {'img': 'assets/icons/building-bank.png', 'text': 'Gov. Offical'},
-    {'img': 'assets/icons/User.png', 'text': 'Client'},
-    {'img': 'assets/icons/messages.png', 'text': 'Consultant'},
-    {'img': 'assets/icons/Labours.png', 'text': 'Labour'},
-    {'img': 'assets/icons/users.png', 'text': 'Staff'},
-    {'img': 'assets/icons/Contractor.png', 'text': 'Contractor'},
-  ];
   final RxBool isFabExpanded = true.obs;
 
   void _showFabMenu(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Stack(
-          children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-                isFabExpanded.value = !isFabExpanded.value;
-              },
-              child: Container(
-                color: Colors.transparent,
-                width: double.infinity,
-                height: double.infinity,
-              ),
-            ),
-            Positioned(
-              left: 20,
-              bottom: 100,
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  width: SizeConfig.widthMultiplier * 90,
-                  padding: const EdgeInsets.only(top: 15, left: 6, right: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 8,
-                        spreadRadius: 2,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 6,
-                          mainAxisSpacing: 4,
-                          childAspectRatio: 1,
-                        ),
-                        itemCount: gridItems.length,
-                        itemBuilder: (context, index) {
-                          final item = gridItems[index];
-                          return GestureDetector(
-                            onTap: () {
-                              if (index == 0) {
-                                print("Tapped on item 0");
-                              } else if (index == 1) {
-                                print("Tapped on item 1");
-                              } else if (index == 2) {
-                                print("Tapped on item 2");
-                              } else if (index == 3) {
-                                Get.to(AddLabourScreen());
-                              } else if (index == 4) {
-                                Get.to(AddStaffScreen());
+        return WillPopScope(
+            onWillPop: () async {
+              isFabExpanded.value =
+                  !isFabExpanded.value; // Ensure FAB state is updated
+              return true; // Allow the dialog to close
+            },
+            child: Stack(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    isFabExpanded.value = !isFabExpanded.value;
 
-                                print("Tapped on item 2");
-                              } else {
-                                Get.to(AddContractor());
-
-                                print("Tapped on item $index");
-                              }
-                            },
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Image.asset(item['img']!,
-                                    height: 30, width: 30),
-                                const SizedBox(height: 6),
-                                Flexible(
-                                  child: Text(
-                                    item['text']!,
-                                    textAlign: TextAlign.center,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 2,
-                                    style: TextStyle(
-                                      fontSize: AppTextSize.textSizeSmalle,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    color: Colors.transparent,
+                    width: double.infinity,
+                    height: double.infinity,
                   ),
                 ),
-              ),
-            ),
-          ],
-        );
+                Positioned(
+                  left: 20,
+                  bottom: 100,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Container(
+                      width: SizeConfig.widthMultiplier * 90,
+                      padding:
+                          const EdgeInsets.only(top: 15, left: 6, right: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 8,
+                            spreadRadius: 2,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 6,
+                              mainAxisSpacing: 4,
+                              childAspectRatio: 1,
+                            ),
+                            itemCount: inductionTrainingController
+                                .selectCatogery.length,
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                onTap: () async {
+                                  if (inductionTrainingController
+                                          .selectCatogery[index].id ==
+                                      1) {
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) =>
+                                            CustomLoadingPopup());
+                                    await inductionTrainingController
+                                        .getInductionTrainingAdd(
+                                            inductionTrainingController
+                                                .selectCatogery[index].id);
+                                    Navigator.pop(context);
+                                    if (logStatus == true) {
+                                      Get.to(InductionTrainingScreen());
+                                    } else {
+                                      logout();
+                                    }
+                                    print(
+                                        "Tapped on item 1-----------AddLabourScreen");
+                                    Get.to(AddLabourScreen());
+                                  } else if (inductionTrainingController
+                                          .selectCatogery[index].id ==
+                                      2) {
+                                    Get.to(AddContractor());
+
+                                    print(
+                                        "Tapped on item 2----------------AddContractor");
+                                  } else if (inductionTrainingController
+                                          .selectCatogery[index].id ==
+                                      3) {
+                                    Get.to(AddStaffScreen());
+                                    print(
+                                        "Tapped on item 3--------AddStaffScreen");
+                                  } else if (index == 3) {
+                                  } else if (index == 4) {
+                                    print("Tapped on item 2");
+                                  } else {
+                                    print("Tapped on item $index");
+                                  }
+                                },
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    SvgPicture.network(
+                                      '$baseUrl2${inductionTrainingController.selectCatogery[index].iconPath}',
+                                      height: 30,
+                                      width: 30,
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Flexible(
+                                      child: Text(
+                                        inductionTrainingController
+                                            .selectCatogery[index].categoryName,
+                                        textAlign: TextAlign.center,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                        style: TextStyle(
+                                          fontSize: AppTextSize.textSizeSmalle,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ));
       },
     );
   }

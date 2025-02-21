@@ -20,41 +20,343 @@ class NewWorkPermitScreen extends StatelessWidget {
   final NewWorkPermitController newWorkPermitController =
       Get.put(NewWorkPermitController());
 
+  void showCustomBottomSheetDate(BuildContext context) {
+    final WorkPermitDateController dateController =
+        Get.put(WorkPermitDateController());
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Allow bottom sheet to resize based on content
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16.0,
+            right: 16.0,
+            top: 16.0,
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: Container(
+              child: Column(
+                mainAxisSize: MainAxisSize.min, // Avoid infinite height
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Start Date
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Start Date',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.grey)),
+                          SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: () {
+                              dateController.pickStartDate(context);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.only(left: 10),
+                              alignment: Alignment.centerLeft,
+                              height: 50,
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              decoration: BoxDecoration(
+                                border:
+                                    Border.all(width: 1.5, color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Obx(() => Text(
+                                    // ignore: unnecessary_null_comparison
+                                    dateController.selectedStartDate.value !=
+                                            null
+                                        ? "${dateController.selectedStartDate.value.toLocal()}"
+                                            .split(' ')[0]
+                                        : 'Select Start Date',
+                                    style: TextStyle(
+                                        fontSize: 14, color: Colors.black),
+                                  )),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // End Date
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('End Date',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.grey)),
+                          SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: () {
+                              dateController.pickEndDate(context);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.only(left: 10),
+                              alignment: Alignment.centerLeft,
+                              height: 50,
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              decoration: BoxDecoration(
+                                border:
+                                    Border.all(width: 1.5, color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Obx(() => Text(
+                                    // ignore: unnecessary_null_comparison
+                                    dateController.selectedEndDate.value != null
+                                        ? "${dateController.selectedEndDate.value.toLocal()}"
+                                            .split(' ')[0]
+                                        : 'Select End Date',
+                                    style: TextStyle(
+                                        fontSize: 14, color: Colors.black),
+                                  )),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+
+                  // Start Time Section with AM/PM toggle
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Start Time
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Start Time',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.grey)),
+                          SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: () async {
+                              TimeOfDay? selectedTime = await showTimePicker(
+                                context: context,
+                                initialTime:
+                                    dateController.selectedStartTime.value,
+
+                                initialEntryMode: TimePickerEntryMode
+                                    .dial, // Set to dial mode
+                              ).then((TimeOfDay? time) {
+                                if (time != null) {
+                                  print(
+                                      "Selected time: ${time.format(context)}"); // This will display time in 12-hour format
+                                }
+                                return null;
+                              });
+                              if (selectedTime != null) {
+                                dateController.updateStartTime(selectedTime);
+                              }
+                            },
+                            child: Container(
+                              padding: EdgeInsets.only(left: 10),
+                              alignment: Alignment.centerLeft,
+                              height: 50,
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              decoration: BoxDecoration(
+                                border:
+                                    Border.all(width: 1.5, color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Obx(() => Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        dateController
+                                                    // ignore: unnecessary_null_comparison
+                                                    .selectedStartTime
+                                                    // ignore: unnecessary_null_comparison
+                                                    .value !=
+                                                null
+                                            ? dateController
+                                                .selectedStartTime.value
+                                                .format(context)
+                                            : 'Select Start Time',
+                                        style: TextStyle(
+                                            fontSize: 14, color: Colors.black),
+                                      ),
+                                      Text(
+                                        dateController.selectedStartTime.value
+                                                    .period ==
+                                                DayPeriod.am
+                                            ? 'AM'
+                                            : 'PM',
+                                        style: TextStyle(
+                                            fontSize: 14, color: Colors.black),
+                                      ),
+                                      SizedBox(width: 20)
+                                    ],
+                                  )),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // End Time with AM/PM toggle
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('End Time',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.grey)),
+                          SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: () async {
+                              TimeOfDay? selectedTime = await showTimePicker(
+                                context: context,
+                                initialTime:
+                                    dateController.selectedEndTime.value
+                                // ??
+                                //  TimeOfDay.now()
+                                ,
+                                initialEntryMode: TimePickerEntryMode
+                                    .dial, // Set to dial mode
+                              );
+                              if (selectedTime != null) {
+                                dateController.updateEndTime(selectedTime);
+                              }
+                            },
+                            child: Container(
+                              padding: EdgeInsets.only(left: 10),
+                              alignment: Alignment.centerLeft,
+                              height: 50,
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              decoration: BoxDecoration(
+                                border:
+                                    Border.all(width: 1.5, color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Obx(() => Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        // ignore: unnecessary_null_comparison
+                                        dateController.selectedEndTime.value !=
+                                                null
+                                            ? dateController
+                                                .selectedEndTime.value
+                                                .format(context)
+                                            : 'Select End Time',
+                                        style: TextStyle(
+                                            fontSize: 14, color: Colors.black),
+                                      ),
+                                      Text(
+                                        dateController.selectedEndTime.value
+                                                    .period ==
+                                                DayPeriod.am
+                                            ? 'AM'
+                                            : 'PM',
+                                        style: TextStyle(
+                                            fontSize: 14, color: Colors.black),
+                                      ),
+                                      SizedBox(width: 20),
+                                    ],
+                                  )),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 30),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          height: 50,
+                          width: 100,
+                          // decoration: BoxDecoration(
+                          //     color: Colors.white,
+                          //     border: Border.all(width: 1, color: Colors.white),
+                          //     borderRadius: BorderRadius.circular(16)),
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(
+                                color: AppColors.primaryText,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          String startDate = dateController
+                              .selectedStartDate.value
+                              .toLocal()
+                              .toString()
+                              .split(' ')[0];
+                          String endDate = dateController.selectedEndDate.value
+                              .toLocal()
+                              .toString()
+                              .split(' ')[0];
+
+                          String startTime = dateController
+                              .selectedStartTime.value
+                              .format(context);
+                          String endTime = dateController.selectedEndTime.value
+                              .format(context);
+
+                          String workDuration =
+                              '$startDate $startTime - $endDate $endTime';
+
+                          newWorkPermitController.dateController.text =
+                              workDuration; // Set the TextFormField value
+                          Navigator.pop(context); // Close the bottom sheet
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          height: 50,
+                          width: 100,
+                          decoration: BoxDecoration(
+                              color: AppColors.buttoncolor,
+                              border: Border.all(
+                                width: 1,
+                                color: AppColors.buttoncolor,
+                              ),
+                              borderRadius: BorderRadius.circular(16)),
+                          child: Text(
+                            'Set',
+                            style: TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: SizeConfig.heightMultiplier * 6,
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+//-----------------------------------------
   void showBuildingSelectionSheetBulding(
       BuildContext context, WorkPermitController controller) {
     final NewWorkPermitController newWorkPermitController =
         Get.find<NewWorkPermitController>();
-
-    void showDateBottomSheet(BuildContext context) {
-      showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: GestureDetector(
-              onTap: () {
-                final WorkPermitDateController dateController =
-                    Get.put(WorkPermitDateController());
-                dateController.pickDate(context);
-              },
-              child: Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Center(
-                  child: Text(
-                    "Pick Date",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      );
-    }
 
     showModalBottomSheet(
       context: context,
@@ -1038,9 +1340,10 @@ class NewWorkPermitScreen extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () {
-                      final WorkPermitDateController dateController =
-                          Get.put(WorkPermitDateController());
-                      dateController.pickDate(context);
+                      // final WorkPermitDateController dateController =
+                      //     Get.put(WorkPermitDateController());
+                      // dateController.pickDate(context);
+                      showCustomBottomSheetDate(context);
                     },
                     child: Row(
                       children: [
@@ -1061,51 +1364,91 @@ class NewWorkPermitScreen extends StatelessWidget {
                   SizedBox(
                     height: SizeConfig.heightMultiplier * 1,
                   ),
-                  Container(
-                    decoration: BoxDecoration(),
-                    child: TextFormField(
-                      controller:
-                          newWorkPermitController.nameworkpermitController,
-                      textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        hintText: 'Select Duration of Work',
-                        hintStyle: TextStyle(
-                          fontSize: AppTextSize.textSizeSmall,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.searchfeild,
-                        ),
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 13, horizontal: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppColors.searchfeildcolor, width: 1),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppColors.searchfeildcolor, width: 1),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 126, 16, 9),
-                            width: 1,
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 126, 16, 9),
-                            width: 1,
-                          ),
-                        ),
+                  GestureDetector(
+                    onTap: () {
+                      showCustomBottomSheetDate(context);
+                    },
+                    child: Container(
+                      height: 50,
+                      width: SizeConfig.widthMultiplier * 91,
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                            color: AppColors.searchfeildcolor, width: 1),
                       ),
+                      child: Obx(() {
+                        String workDuration =
+                            '${dateController.selectedStartDate.value.toLocal().toString().split(' ')[0]} '
+                            '${dateController.selectedStartTime.value.format(context)} - '
+                            '${dateController.selectedEndDate.value.toLocal().toString().split(' ')[0]} '
+                            '${dateController.selectedEndTime.value.format(context)}';
+                        return Text(
+                          workDuration.isEmpty
+                              ? 'Select Duration of Work'
+                              : workDuration,
+                          style: TextStyle(
+                            fontSize: AppTextSize.textSizeSmall,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.searchfeild,
+                          ),
+                        );
+                      }),
                     ),
                   ),
+
+                  // GestureDetector(
+                  //   onTap: () {
+                  //     showCustomBottomSheetDate(context);
+                  //   },
+                  //   child: Container(
+                  //     decoration: BoxDecoration(),
+                  //     child: TextFormField(
+                  //       controller:
+                  //           newWorkPermitController.nameworkpermitController,
+                  //       textInputAction: TextInputAction.next,
+                  //       readOnly: true,
+                  //       decoration: InputDecoration(
+                  //         hintText: 'Select Duration of Work',
+                  //         hintStyle: TextStyle(
+                  //           fontSize: AppTextSize.textSizeSmall,
+                  //           fontWeight: FontWeight.w400,
+                  //           color: AppColors.searchfeild,
+                  //         ),
+                  //         contentPadding: EdgeInsets.symmetric(
+                  //             vertical: 13, horizontal: 12),
+                  //         border: OutlineInputBorder(
+                  //           borderRadius: BorderRadius.circular(10),
+                  //         ),
+                  //         enabledBorder: OutlineInputBorder(
+                  //           borderRadius: BorderRadius.circular(10),
+                  //           borderSide: BorderSide(
+                  //               color: AppColors.searchfeildcolor, width: 1),
+                  //         ),
+                  //         focusedBorder: OutlineInputBorder(
+                  //           borderRadius: BorderRadius.circular(10),
+                  //           borderSide: BorderSide(
+                  //               color: AppColors.searchfeildcolor, width: 1),
+                  //         ),
+                  //         errorBorder: OutlineInputBorder(
+                  //           borderRadius: BorderRadius.circular(10),
+                  //           borderSide: BorderSide(
+                  //             color: const Color.fromARGB(255, 126, 16, 9),
+                  //             width: 1,
+                  //           ),
+                  //         ),
+                  //         focusedErrorBorder: OutlineInputBorder(
+                  //           borderRadius: BorderRadius.circular(10),
+                  //           borderSide: BorderSide(
+                  //             color: const Color.fromARGB(255, 126, 16, 9),
+                  //             width: 1,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+
                   SizedBox(
                     height: SizeConfig.heightMultiplier * 3,
                   ),

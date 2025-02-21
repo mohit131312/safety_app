@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/features/incident_report_all/incident_report/incident_report_screen.dart';
+import 'package:flutter_app/features/induction_training/induction_training_controller.dart';
 import 'package:flutter_app/features/induction_training/induction_training_screen.dart';
 import 'package:flutter_app/features/project_labour/project_labour_screen.dart';
 import 'package:flutter_app/features/safety_violation_all/safety_violation/sefety_violation_screen.dart';
@@ -7,12 +8,15 @@ import 'package:flutter_app/features/toolbox_training_all/toolbox_training/toolb
 import 'package:flutter_app/features/work_permit_all/work_permit/work_permit_screen.dart';
 import 'package:flutter_app/utils/app_color.dart';
 import 'package:flutter_app/utils/app_textsize.dart';
+import 'package:flutter_app/utils/loader_screen.dart';
+import 'package:flutter_app/utils/logout_user.dart';
 import 'package:flutter_app/utils/size_config.dart';
 import 'package:get/get.dart';
 
 class QuickActionsGrid extends StatelessWidget {
-  const QuickActionsGrid({super.key});
-
+  QuickActionsGrid({super.key});
+  final InductionTrainingController inductionTrainingController =
+      Get.put(InductionTrainingController());
   @override
   Widget build(BuildContext context) {
     final actions = [
@@ -36,7 +40,7 @@ class QuickActionsGrid extends StatelessWidget {
       itemCount: actions.length,
       itemBuilder: (context, index) {
         return GestureDetector(
-          onTap: () {
+          onTap: () async {
             switch (index) {
               case 0:
                 Get.to(WorkPermitScreen());
@@ -45,7 +49,16 @@ class QuickActionsGrid extends StatelessWidget {
                 Get.to(ToolboxTrainingScreen());
                 break;
               case 2:
-                Get.to(InductionTrainingScreen());
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) => CustomLoadingPopup());
+                await inductionTrainingController.getProjectDetails();
+                Navigator.pop(context);
+                if (logStatus == true) {
+                  Get.to(InductionTrainingScreen());
+                } else {
+                  logout();
+                }
                 break;
               case 3:
                 Get.to(SefetyViolationScreen());

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/components/app_elevated_button.dart';
 import 'package:flutter_app/components/app_text_widget.dart';
-import 'package:flutter_app/features/safety_violation_all/safety_preview_again/safety_preview_again_screen.dart';
+import 'package:flutter_app/features/home/home_screen.dart';
+import 'package:flutter_app/features/select_project/select_project_screen.dart';
 import 'package:flutter_app/utils/app_color.dart';
 import 'package:flutter_app/utils/app_textsize.dart';
 import 'package:flutter_app/utils/size_config.dart';
@@ -59,7 +60,17 @@ class SafetySubmitScreeen extends StatelessWidget {
                     child: AppElevatedButton(
                         text: 'Done',
                         onPressed: () {
-                          Get.to(SafetyPreviewAgainScreen());
+                          Get.offUntil(
+                            GetPageRoute(
+                                page: () => HomeScreen()), // Push new screen
+                            (route) {
+                              if (route is GetPageRoute) {
+                                return route.page!().runtimeType ==
+                                    SelectProjectScreen;
+                              }
+                              return false;
+                            },
+                          );
                         })),
                 SizedBox(height: SizeConfig.heightMultiplier * 5),
               ],

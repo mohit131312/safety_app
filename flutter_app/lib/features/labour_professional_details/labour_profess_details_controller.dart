@@ -9,9 +9,7 @@ class LabourProfessDetailsController extends GetxController {
     selectedSkillLevel.value = value;
   }
 
-  var selectedtrade = ''.obs; // Observable for Blood Group selection
-  final List<String> trade = ['A', 'B', 'C'];
+  var selectedtrade = ''.obs;
 
-  var selectedFirmname = ''.obs; // Observable for Blood Group selection
-  final List<String> firmname = ['A', 'B', 'C'];
+  var contractorCompanyName = ''.obs;
 }

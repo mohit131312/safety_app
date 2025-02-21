@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/components/app_elevated_button.dart';
 import 'package:flutter_app/components/app_text_widget.dart';
-import 'package:flutter_app/features/home/home_screen.dart';
 import 'package:flutter_app/features/login/login_controller.dart';
 import 'package:flutter_app/features/reset_password/reset_pass_screen.dart';
-import 'package:flutter_app/features/select_role/select_role.dart';
 import 'package:flutter_app/utils/app_color.dart';
 import 'package:flutter_app/utils/app_texts.dart';
 import 'package:flutter_app/utils/app_textsize.dart';
+import 'package:flutter_app/utils/loader_screen.dart';
 import 'package:flutter_app/utils/size_config.dart';
 import 'package:get/get.dart';
 
@@ -234,18 +233,18 @@ class _LoginScreenState extends State<LoginScreen> {
                               AppElevatedButton(
                                 text: 'Log In',
                                 onPressed: () async {
-                                  Get.to(SelectRole());
-                                  Get.to(HomeScreen(
-                                    userId: 1,
-                                    roleId: 1,
-                                    selectedproject: 'dummyname',
-                                  ));
-                                  // showDialog(
-                                  //     context: context,
-                                  //     builder: (BuildContext context) =>
-                                  //         CustomLoadingPopup());
+                                  // Get.to(SelectRole());
+                                  // Get.to(HomeScreen(
+                                  //   userId: 1,
+                                  //   roleId: 1,
+                                  //   selectedproject: 'dummyname',
+                                  // ));
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) =>
+                                          CustomLoadingPopup());
 
-                                  // await loginController.login();
+                                  await loginController.login();
                                 },
                               ),
                             ],

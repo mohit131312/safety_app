@@ -5,6 +5,7 @@ import 'package:flutter_app/components/app_text_widget.dart';
 import 'package:flutter_app/features/work_permit_all/work_permit/work_permit_controller.dart';
 import 'package:flutter_app/features/work_permit_all/work_permit_checker/work_permit_checker_details/work_permit_checkers_details.dart';
 import 'package:flutter_app/features/work_permit_all/work_permit_maker/new_work_permit/new_work_permit_screen.dart';
+import 'package:flutter_app/features/work_permit_all/work_permit_maker/work_permit_details/work_permit_details_screen.dart';
 import 'package:flutter_app/utils/app_color.dart';
 import 'package:flutter_app/utils/app_texts.dart';
 import 'package:flutter_app/utils/app_textsize.dart';
@@ -230,7 +231,7 @@ class WorkPermitScreen extends StatelessWidget {
                         log('----------------------------${workPermitController.selectedOption.value}');
 
                         if (workPermitController.selectedOption.value == 0) {
-                          Get.to(NewWorkPermitScreen());
+                          Get.to(WorkPermitDetailsScreen());
                         }
                       },
                       child: ListView.builder(
@@ -371,7 +372,9 @@ class WorkPermitScreen extends StatelessWidget {
           width: SizeConfig.widthMultiplier * 36,
           height: SizeConfig.heightMultiplier * 6.5,
           child: FloatingActionButton(
-            onPressed: () {},
+            onPressed: () {
+              Get.to(NewWorkPermitScreen());
+            },
             backgroundColor: AppColors.buttoncolor,
             elevation: 0,
             child: Row(

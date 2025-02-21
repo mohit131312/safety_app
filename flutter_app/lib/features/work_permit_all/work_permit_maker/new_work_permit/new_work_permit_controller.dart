@@ -59,6 +59,7 @@ class NewWorkPermitController extends GetxController {
 
   TextEditingController descWorkrController = TextEditingController();
   TextEditingController nameworkpermitController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
 
   //---------------
   RxBool isCheckedPermit = false.obs;

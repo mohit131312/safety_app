@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/components/app_medium_button.dart';
+import 'package:flutter_app/components/app_search_dropdown.dart';
 import 'package:flutter_app/components/app_text_widget.dart';
+import 'package:flutter_app/components/app_textformfeild.dart';
+import 'package:flutter_app/features/induction_training/induction_training_controller.dart';
 import 'package:flutter_app/features/labour_documentation/labour_documentation.dart';
 import 'package:flutter_app/features/labour_professional_details/labour_profess_details_controller.dart';
-import 'package:flutter_app/features/toolbox_training_all/toolbox_t_details/toolbox_t_details_controller.dart';
 import 'package:flutter_app/utils/app_color.dart';
 import 'package:flutter_app/utils/app_texts.dart';
 import 'package:flutter_app/utils/app_textsize.dart';
@@ -13,8 +15,8 @@ import 'package:get/get.dart';
 // ignore: must_be_immutable
 class LabourProfessDetails extends StatelessWidget {
   LabourProfessDetails({super.key});
-  final ToolboxTDetailsController controller =
-      Get.put(ToolboxTDetailsController());
+  final InductionTrainingController inductionTrainingController =
+      Get.put(InductionTrainingController());
   final LabourProfessDetailsController labourProfessDetailsController =
       Get.put(LabourProfessDetailsController());
   @override
@@ -115,7 +117,7 @@ class LabourProfessDetails extends StatelessWidget {
                 AppTextWidget(
                     text: AppTexts.trade,
                     fontSize: AppTextSize.textSizeSmall,
-                    fontWeight: FontWeight.w400,
+                    fontWeight: FontWeight.w500,
                     color: AppColors.primaryText),
                 AppTextWidget(
                     text: AppTexts.star,
@@ -127,79 +129,23 @@ class LabourProfessDetails extends StatelessWidget {
             SizedBox(
               height: SizeConfig.heightMultiplier * 1,
             ),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Obx(
-                () => DropdownButtonFormField<String>(
-                  // isDense: false,
-
-                  value: labourProfessDetailsController
-                          .selectedtrade.value.isNotEmpty
+            AppSearchDropdown(
+              items: inductionTrainingController.tradeList
+                  .map(
+                    (trade) => trade.inductionDetails,
+                  )
+                  .toList(),
+              selectedItem:
+                  labourProfessDetailsController.selectedtrade.value.isNotEmpty
                       ? labourProfessDetailsController.selectedtrade.value
                       : null,
-                  items: labourProfessDetailsController.trade
-                      .map((trade) => DropdownMenuItem(
-                            value: trade,
-                            child: Text(
-                              trade,
-                              style: TextStyle(
-                                  fontSize: AppTextSize.textSizeSmalle,
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.secondaryText),
-                            ),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    labourProfessDetailsController.selectedtrade.value =
-                        value ?? '';
-                  },
-                  hint: AppTextWidget(
-                    text: 'Select Trade',
-                    fontSize: AppTextSize.textSizeSmall,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.searchfeild,
-                  ),
-                  icon: Icon(
-                    Icons.keyboard_arrow_down, // Your custom dropdown icon
-                    color: AppColors.searchfeild, // Adjust color as needed
-                    size: 27,
-                  ),
-                  decoration: InputDecoration(
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 13, horizontal: 12),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                          color: AppColors.searchfeildcolor, width: 1),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                          color: AppColors.searchfeildcolor, width: 1),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                        color: const Color.fromARGB(255, 126, 16, 9),
-                        width: 1,
-                      ),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                        color: const Color.fromARGB(255, 126, 16, 9),
-                        width: 1,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              hintText: 'Select Trade',
+              onChanged: (value) {
+                labourProfessDetailsController.selectedtrade.value =
+                    value ?? '';
+              },
             ),
+
             SizedBox(
               height: SizeConfig.heightMultiplier * 2,
             ),
@@ -221,51 +167,18 @@ class LabourProfessDetails extends StatelessWidget {
             SizedBox(
               height: SizeConfig.heightMultiplier * 1,
             ),
-            Container(
-              decoration: BoxDecoration(),
-              child: TextFormField(
-                controller:
-                    labourProfessDetailsController.yoexperienceController,
-                textInputAction: TextInputAction.next,
-                decoration: InputDecoration(
-                  hintText: 'Enter year count',
-                  hintStyle: TextStyle(
-                    fontSize: AppTextSize.textSizeSmall,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.searchfeild,
-                  ),
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 13, horizontal: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide:
-                        BorderSide(color: AppColors.searchfeildcolor, width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide:
-                        BorderSide(color: AppColors.searchfeildcolor, width: 1),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: const Color.fromARGB(255, 126, 16, 9),
-                      width: 1,
-                    ),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: const Color.fromARGB(255, 126, 16, 9),
-                      width: 1,
-                    ),
-                  ),
-                ),
-              ),
+            AppTextFormfeild(
+              controller: labourProfessDetailsController.yoexperienceController,
+              hintText: 'Enter year count',
+              keyboardType: TextInputType.name,
+              textInputAction: TextInputAction.next,
+              enabled: true, // Set to false to disable the field
+              readOnly: false, // Set to true if you don't want it editable
+              validator: (value) {
+                return null;
+              },
             ),
+
             SizedBox(
               height: SizeConfig.heightMultiplier * 2,
             ),
@@ -341,79 +254,25 @@ class LabourProfessDetails extends StatelessWidget {
             SizedBox(
               height: SizeConfig.heightMultiplier * 1,
             ),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Obx(
-                () => DropdownButtonFormField<String>(
-                  // isDense: false,
 
-                  value: labourProfessDetailsController
-                          .selectedFirmname.value.isNotEmpty
-                      ? labourProfessDetailsController.selectedFirmname.value
-                      : null,
-                  items: labourProfessDetailsController.firmname
-                      .map((firmname) => DropdownMenuItem(
-                            value: firmname,
-                            child: Text(
-                              firmname,
-                              style: TextStyle(
-                                  fontSize: AppTextSize.textSizeSmalle,
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.secondaryText),
-                            ),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    labourProfessDetailsController.selectedFirmname.value =
-                        value ?? '';
-                  },
-                  hint: AppTextWidget(
-                    text: 'Select Name',
-                    fontSize: AppTextSize.textSizeSmall,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.searchfeild,
-                  ),
-                  icon: Icon(
-                    Icons.keyboard_arrow_down, // Your custom dropdown icon
-                    color: AppColors.searchfeild, // Adjust color as needed
-                    size: 27,
-                  ),
-                  decoration: InputDecoration(
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 13, horizontal: 12),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                          color: AppColors.searchfeildcolor, width: 1),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                          color: AppColors.searchfeildcolor, width: 1),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                        color: const Color.fromARGB(255, 126, 16, 9),
-                        width: 1,
-                      ),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                        color: const Color.fromARGB(255, 126, 16, 9),
-                        width: 1,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            //------------------------------
+            AppSearchDropdown(
+              items: inductionTrainingController.contractorLists
+                  .map(
+                    (contractor) => contractor.contractorCompanyName,
+                  )
+                  .toList(),
+              selectedItem: labourProfessDetailsController
+                      .contractorCompanyName.value.isNotEmpty
+                  ? labourProfessDetailsController.contractorCompanyName.value
+                  : null,
+              hintText: 'Select Name',
+              onChanged: (value) {
+                labourProfessDetailsController.contractorCompanyName.value =
+                    value ?? '';
+              },
             ),
+
             SizedBox(
               height: SizeConfig.heightMultiplier * 12,
             ),

@@ -5,6 +5,7 @@ import 'package:flutter_app/utils/api_client.dart';
 import 'package:get/get.dart';
 
 String baseUrl = "http://192.168.1.72/Kumar/KumarProperties/storage/app/";
+String baseUrl2 = "http://192.168.1.72/Kumar/KumarProperties/";
 
 bool logStatus = true;
 void logout() {

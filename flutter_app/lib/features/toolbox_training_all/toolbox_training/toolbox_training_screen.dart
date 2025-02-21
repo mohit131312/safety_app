@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/components/app_text_widget.dart';
+import 'package:flutter_app/features/toolbox_training_all/toolbox_preview_again/toolbox_preview_again_screen.dart';
 import 'package:flutter_app/features/toolbox_training_all/toolbox_reviewer_all/toolbox_reviewer_details/toolbox_reviewer_screen.dart';
 import 'package:flutter_app/features/toolbox_training_all/toolbox_t_details/toolbox_t_details_screen.dart';
 import 'package:flutter_app/utils/app_color.dart';
@@ -280,7 +281,8 @@ class ToolboxTrainingScreen extends StatelessWidget {
                       var item = trainingList[index];
                       return GestureDetector(
                         onTap: () {
-                          Get.to(ToolboxTDetailsScreen());
+                          //        Get.to(ToolboxTDetailsScreen());
+                          Get.to(ToolboxPreviewAgainScreen());
                         },
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -396,7 +398,9 @@ class ToolboxTrainingScreen extends StatelessWidget {
           width: SizeConfig.widthMultiplier * 36,
           height: SizeConfig.heightMultiplier * 6.5,
           child: FloatingActionButton(
-            onPressed: () {},
+            onPressed: () {
+              Get.to(ToolboxTDetailsScreen());
+            },
             backgroundColor: AppColors.buttoncolor,
             elevation: 0,
             child: Row(

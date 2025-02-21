@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/components/app_medium_button.dart';
 import 'package:flutter_app/components/app_text_widget.dart';
+import 'package:flutter_app/components/app_textformfeild.dart';
+import 'package:flutter_app/features/induction_training/induction_training_controller.dart';
 import 'package:flutter_app/features/labour_precaution/labour_precaution_controller.dart';
 import 'package:flutter_app/features/labour_undertaking/labour_undertaking_screen.dart';
 import 'package:flutter_app/utils/app_color.dart';
@@ -15,7 +17,8 @@ class LabourPrecaustionScreen extends StatelessWidget {
 
   final LabourPrecautionController controller =
       Get.put(LabourPrecautionController());
-
+  final InductionTrainingController inductionTrainingController =
+      Get.put(InductionTrainingController());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -144,7 +147,6 @@ class LabourPrecaustionScreen extends StatelessWidget {
                     width: 24.0,
                     height: 24.0,
                     child: Checkbox(
-                      value: controller.isCheckedEquipment.value,
                       activeColor: AppColors.buttoncolor,
                       side: BorderSide(
                         color: AppColors.secondaryText,
@@ -153,6 +155,7 @@ class LabourPrecaustionScreen extends StatelessWidget {
                       onChanged: (bool? value) {
                         controller.toggleSelectAll();
                       },
+                      value: controller.isSelectAll.value,
                     ),
                   ),
                 ),
@@ -174,47 +177,40 @@ class LabourPrecaustionScreen extends StatelessWidget {
                 SizedBox(
                   height: SizeConfig.heightMultiplier * 5.5,
                   width: SizeConfig.widthMultiplier * 82,
-                  child: TextField(
-                    controller: controller.searchController,
-                    // readOnly: true,
-                    decoration: InputDecoration(
-                      hintText: 'Search here..',
-                      hintStyle: TextStyle(
-                        fontSize: AppTextSize.textSizeSmall,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.searchfeild,
-                      ),
-                      prefixIcon: Container(
-                        padding:
-                            EdgeInsets.all(10.0), // Adjust padding as needed
-
-                        child: Image.asset(
-                          'assets/icons/Search.png',
-                          fit:
-                              BoxFit.contain, // Ensures it stays within the box
-                        ),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                            color: AppColors.searchfeildcolor, width: 0.5),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                            color: AppColors.searchfeildcolor, width: 0.5),
+                  child: AppTextFormfeild(
+                    controller: controller.searchControllerEquipment,
+                    hintText: 'Search here..',
+                    keyboardType: TextInputType.name,
+                    textInputAction: TextInputAction.next,
+                    prefixIcon: Container(
+                      padding: EdgeInsets.all(10.0),
+                      child: Image.asset(
+                        'assets/icons/Search.png',
+                        fit: BoxFit.contain,
                       ),
                     ),
+                    suffixIcon: Obx(
+                        () => controller.searchQueryEquipment.value.isNotEmpty
+                            ? GestureDetector(
+                                onTap: () {
+                                  controller.searchControllerEquipment.clear();
+                                  controller.searchDataEquipment('');
+                                },
+                                child: Icon(Icons.close,
+                                    color: AppColors.searchfeild),
+                              )
+                            : SizedBox()),
+                    enabled: true, // Set to false to disable the field
+                    readOnly:
+                        false, // Set to true if you don't want it editable
                     onChanged: (value) {
-                      controller.searchData(value);
+                      controller.searchDataEquipment(value);
                     },
                   ),
                 ),
               ],
             ),
+
             SizedBox(height: SizeConfig.heightMultiplier * 2),
             SizedBox(
               height: 270,
@@ -234,22 +230,27 @@ class LabourPrecaustionScreen extends StatelessWidget {
                                 contentPadding: EdgeInsets.only(
                                     top: 0, bottom: 0, left: 16, right: 16),
                                 leading: SizedBox(
-                                  width: 24.0,
-                                  height: 24.0,
-                                  child: Checkbox(
-                                    value: controller
-                                            .filteredDetailsEquipment[index]
-                                        ['isChecked'] as bool,
-                                    activeColor: AppColors.buttoncolor,
-                                    side: BorderSide(
-                                      color: AppColors.secondaryText,
-                                      width: 1.2,
-                                    ),
-                                    onChanged: (bool? value) {
-                                      controller.toggleCheckbox(index);
-                                    },
-                                  ),
-                                ),
+                                    width: 24.0,
+                                    height: 24.0,
+                                    child: Obx(() => Checkbox(
+                                          value: controller.selectedItemIds
+                                              .contains(controller
+                                                  .filteredDetailsEquipment[
+                                                      index]
+                                                  .id),
+                                          activeColor: AppColors.buttoncolor,
+                                          side: BorderSide(
+                                            color: AppColors.secondaryText,
+                                            width: 1.2,
+                                          ),
+                                          onChanged: (bool? value) {
+                                            controller.toggleSelection(
+                                                controller
+                                                    .filteredDetailsEquipment[
+                                                        index]
+                                                    .id);
+                                          },
+                                        ))),
                                 title: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -258,8 +259,7 @@ class LabourPrecaustionScreen extends StatelessWidget {
                                     AppTextWidget(
                                       text: controller
                                           .filteredDetailsEquipment[index]
-                                              ['title']
-                                          .toString(),
+                                          .listDetails,
                                       fontSize: AppTextSize.textSizeExtraSmall,
                                       fontWeight: FontWeight.w400,
                                       color: AppColors.secondaryText,
@@ -307,14 +307,14 @@ class LabourPrecaustionScreen extends StatelessWidget {
                     width: 24.0,
                     height: 24.0,
                     child: Checkbox(
-                      value: controller.isCheckedInstruction.value,
+                      value: controller.isSelectAllInstruction.value,
                       activeColor: AppColors.buttoncolor,
                       side: BorderSide(
                         color: AppColors.secondaryText,
                         width: 1.2,
                       ),
                       onChanged: (bool? value) {
-                        controller.toggleSelectInstructionAll();
+                        controller.toggleSelectAllInstruction();
                       },
                     ),
                   ),
@@ -337,40 +337,32 @@ class LabourPrecaustionScreen extends StatelessWidget {
                 SizedBox(
                   height: SizeConfig.heightMultiplier * 5.5,
                   width: SizeConfig.widthMultiplier * 82,
-                  child: TextField(
+                  child: AppTextFormfeild(
                     controller: controller.searchControllerInstruction,
-                    // readOnly: true,
-                    decoration: InputDecoration(
-                      hintText: 'Search here..',
-                      hintStyle: TextStyle(
-                        fontSize: AppTextSize.textSizeSmall,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.searchfeild,
-                      ),
-                      prefixIcon: Container(
-                        padding:
-                            EdgeInsets.all(10.0), // Adjust padding as needed
-
-                        child: Image.asset(
-                          'assets/icons/Search.png',
-                          fit:
-                              BoxFit.contain, // Ensures it stays within the box
-                        ),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                            color: AppColors.searchfeildcolor, width: 0.5),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                            color: AppColors.searchfeildcolor, width: 0.5),
+                    hintText: 'Search here..',
+                    keyboardType: TextInputType.name,
+                    textInputAction: TextInputAction.next,
+                    prefixIcon: Container(
+                      padding: EdgeInsets.all(10.0),
+                      child: Image.asset(
+                        'assets/icons/Search.png',
+                        fit: BoxFit.contain,
                       ),
                     ),
+                    suffixIcon: Obx(
+                        () => controller.searchQueryEquipment.value.isNotEmpty
+                            ? GestureDetector(
+                                onTap: () {
+                                  controller.searchControllerEquipment.clear();
+                                  controller.searchDataEquipment('');
+                                },
+                                child: Icon(Icons.close,
+                                    color: AppColors.searchfeild),
+                              )
+                            : SizedBox()),
+                    enabled: true, // Set to false to disable the field
+                    readOnly:
+                        false, // Set to true if you don't want it editable
                     onChanged: (value) {
                       controller.searchDataInstruction(value);
                     },
@@ -378,6 +370,7 @@ class LabourPrecaustionScreen extends StatelessWidget {
                 ),
               ],
             ),
+
             SizedBox(height: SizeConfig.heightMultiplier * 2),
             SizedBox(
               height: 270,
@@ -399,19 +392,27 @@ class LabourPrecaustionScreen extends StatelessWidget {
                                 leading: SizedBox(
                                   width: 24.0,
                                   height: 24.0,
-                                  child: Checkbox(
-                                    value: controller
+                                  child: Obx(
+                                    () => Checkbox(
+                                      value: controller.selectedItemInstruction
+                                          .contains(
+                                        controller
                                             .filteredDetailsInstruction[index]
-                                        ['isChecked'] as bool,
-                                    activeColor: AppColors.buttoncolor,
-                                    side: BorderSide(
-                                      color: AppColors.secondaryText,
-                                      width: 1.2,
+                                            .id,
+                                      ),
+                                      activeColor: AppColors.buttoncolor,
+                                      side: BorderSide(
+                                        color: AppColors.secondaryText,
+                                        width: 1.2,
+                                      ),
+                                      onChanged: (bool? value) {
+                                        controller.toggleSelectionInstruction(
+                                            controller
+                                                .filteredDetailsInstruction[
+                                                    index]
+                                                .id);
+                                      },
                                     ),
-                                    onChanged: (bool? value) {
-                                      controller
-                                          .toggleCheckboxInstruction(index);
-                                    },
                                   ),
                                 ),
                                 title: Row(
@@ -422,8 +423,7 @@ class LabourPrecaustionScreen extends StatelessWidget {
                                     AppTextWidget(
                                       text: controller
                                           .filteredDetailsInstruction[index]
-                                              ['title']
-                                          .toString(),
+                                          .inductionDetails,
                                       fontSize: AppTextSize.textSizeExtraSmall,
                                       fontWeight: FontWeight.w400,
                                       color: AppColors.secondaryText,

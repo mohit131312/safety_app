@@ -3,15 +3,20 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/components/app_elevated_button.dart';
+import 'package:flutter_app/components/app_search_dropdown.dart';
 import 'package:flutter_app/components/app_text_widget.dart';
+import 'package:flutter_app/components/app_textformfeild.dart';
 import 'package:flutter_app/features/Labour_add/add_labour_controller.dart';
+import 'package:flutter_app/features/induction_training/induction_training_controller.dart';
 import 'package:flutter_app/features/labour_professional_details/labour_profess_details.dart';
-import 'package:flutter_app/features/toolbox_training_all/toolbox_t_details/toolbox_t_details_controller.dart';
 import 'package:flutter_app/utils/app_color.dart';
 import 'package:flutter_app/utils/app_texts.dart';
 import 'package:flutter_app/utils/app_textsize.dart';
+import 'package:flutter_app/utils/loader_screen.dart';
+import 'package:flutter_app/utils/matched_userpopup.dart';
 import 'package:flutter_app/utils/size_config.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 // ignore: must_be_immutable
 class AddLabourScreen extends StatelessWidget {
@@ -19,11 +24,11 @@ class AddLabourScreen extends StatelessWidget {
 
   final AddLabourController addLabourController =
       Get.put(AddLabourController());
-  final ToolboxTDetailsController controller =
-      Get.put(ToolboxTDetailsController());
 
-  TextEditingController dateController = TextEditingController();
+  final InductionTrainingController inductionTrainingController =
+      Get.put(InductionTrainingController());
 
+  TextEditingController searchController = TextEditingController();
   void showDatePicker(
       BuildContext context, AddLabourController addLabourController) {
     DateTime tempPickedDate =
@@ -130,88 +135,72 @@ class AddLabourScreen extends StatelessWidget {
     );
   }
 
-  Widget buildTextField(String hint, index) {
-    return TextFormField(
+  Widget buildTextField(BuildContext context, String hint, index) {
+    List<FocusNode> focusNodes = [
+      addLabourController.streetFocusNode,
+      addLabourController.cityFocusNode,
+      addLabourController.talukaFocusNode,
+      addLabourController.pincodeFocusNode,
+    ];
+    return AppTextFormfeild(
       controller: addLabourController.addressControllers[index],
+      hintText: hint,
+      keyboardType: TextInputType.name,
       textInputAction: TextInputAction.next,
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(
-          fontSize: AppTextSize.textSizeSmall,
-          fontWeight: FontWeight.w400,
-          color: AppColors.searchfeild,
-        ),
-        contentPadding: EdgeInsets.symmetric(vertical: 13, horizontal: 12),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: AppColors.searchfeildcolor, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: AppColors.searchfeildcolor, width: 1),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: const Color.fromARGB(255, 126, 16, 9),
-            width: 1,
-          ),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: const Color.fromARGB(255, 126, 16, 9),
-            width: 1,
-          ),
-        ),
-      ),
+      focusNode: focusNodes[index],
+      onFieldSubmitted: (_) {
+        focusNodes[index].unfocus();
+
+        // if (index < focusNodes.length - 1) {
+        //   FocusScope.of(context).requestFocus(focusNodes[index + 1]);
+        // } else {
+        //   focusNodes[index].unfocus();
+        // }
+      },
+      enabled: !addLabourController
+          .userFound.value, // ✅ Editable only if user NOT found
+      readOnly:
+          addLabourController.userFound.value, // ✅ Read-only if user is found
+
+      validator: (value) {
+        return null;
+      },
       onChanged: (value) {
         addLabourController.updateFormattedAddress();
       },
     );
   }
 
-  Widget buildTextField2(String hint, index) {
-    return TextFormField(
+  Widget buildTextField2(BuildContext context, String hint, index) {
+    List<FocusNode> focusNodes = [
+      addLabourController.streetPermanatFocusNode,
+      addLabourController.cityPermanatFocusNode,
+      addLabourController.talukaPermanatFocusNode,
+      addLabourController.pincodePermanatFocusNode,
+    ];
+    return AppTextFormfeild(
       controller: addLabourController.permanantAddressController[index],
+      hintText: hint,
+      keyboardType: TextInputType.name,
       textInputAction: TextInputAction.next,
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(
-          fontSize: AppTextSize.textSizeSmall,
-          fontWeight: FontWeight.w400,
-          color: AppColors.searchfeild,
-        ),
-        contentPadding: EdgeInsets.symmetric(vertical: 13, horizontal: 12),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: AppColors.searchfeildcolor, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: AppColors.searchfeildcolor, width: 1),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: const Color.fromARGB(255, 126, 16, 9),
-            width: 1,
-          ),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: const Color.fromARGB(255, 126, 16, 9),
-            width: 1,
-          ),
-        ),
-      ),
+      focusNode: focusNodes[index],
+      onFieldSubmitted: (_) {
+        focusNodes[index].unfocus();
+
+        // if (index < focusNodes.length - 1) {
+        //   FocusScope.of(context).requestFocus(focusNodes[index + 1]);
+        // } else {
+        //   focusNodes[index].unfocus();
+        // }
+      },
+      enabled: !addLabourController
+          .userFound.value, // ✅ Editable only if user NOT found
+      readOnly:
+          addLabourController.userFound.value, // ✅ Read-only if user is found
+
+      validator: (value) {
+        return null;
+      },
       onChanged: (value) {
         addLabourController.updateFormattedpermenantAddress();
       },
@@ -310,6 +299,251 @@ class AddLabourScreen extends StatelessWidget {
                     fontSize: AppTextSize.textSizeSmalle,
                     fontWeight: FontWeight.w400,
                     color: AppColors.secondaryText,
+                  ),
+                  SizedBox(
+                    height: SizeConfig.heightMultiplier * 3,
+                  ),
+                  AppTextWidget(
+                    text: 'Search Labour',
+                    fontSize: AppTextSize.textSizeSmall,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.primaryText,
+                  ),
+                  SizedBox(
+                    height: SizeConfig.heightMultiplier * 1,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: SizeConfig.widthMultiplier * 44,
+                        child: TextFormField(
+                          controller: searchController,
+                          focusNode: addLabourController.searchFocusNode,
+                          onFieldSubmitted: (_) {
+                            addLabourController.searchFocusNode.unfocus();
+                          },
+                          textInputAction: TextInputAction.next,
+                          decoration: InputDecoration(
+                            hintText: 'Search Labour By ID',
+                            hintStyle: GoogleFonts.inter(
+                              fontSize: AppTextSize.textSizeSmall,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.searchfeild,
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 13, horizontal: 12),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(12),
+                                  bottomLeft: Radius.circular(12),
+                                  topRight: Radius.circular(0),
+                                  bottomRight: Radius.circular(0)),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(12),
+                                  bottomLeft: Radius.circular(12),
+                                  topRight: Radius.circular(0),
+                                  bottomRight: Radius.circular(0)),
+                              borderSide: BorderSide(
+                                  color: AppColors.searchfeildcolor, width: 1),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(12),
+                                  bottomLeft: Radius.circular(12),
+                                  topRight: Radius.circular(0),
+                                  bottomRight: Radius.circular(0)),
+                              borderSide: BorderSide(
+                                  color: AppColors.searchfeildcolor, width: 1),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(12),
+                                  bottomLeft: Radius.circular(12),
+                                  topRight: Radius.circular(0),
+                                  bottomRight: Radius.circular(0)),
+                              borderSide: BorderSide(
+                                color: const Color.fromARGB(255, 126, 16, 9),
+                                width: 1,
+                              ),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(12),
+                                  bottomLeft: Radius.circular(12),
+                                  topRight: Radius.circular(0),
+                                  bottomRight: Radius.circular(0)),
+                              borderSide: BorderSide(
+                                color: const Color.fromARGB(255, 126, 16, 9),
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          onChanged: (value) {},
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                                width: 1, color: AppColors.searchfeildcolor),
+                            right: BorderSide(
+                                width: 1, color: AppColors.searchfeildcolor),
+                            bottom: BorderSide(
+                                width: 1, color: AppColors.searchfeildcolor),
+                            left: BorderSide(
+                                width: 0.3, color: AppColors.searchfeildcolor),
+                          ),
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(0),
+                              bottomLeft: Radius.circular(0),
+                              topRight: Radius.circular(12),
+                              bottomRight: Radius.circular(12)),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: Container(
+                            padding: const EdgeInsets.only(
+                              left: 12,
+                            ),
+                            width: SizeConfig.widthMultiplier * 28,
+                            child: Obx(
+                              () => DropdownButton<String>(
+                                value: addLabourController
+                                        .searchType.value.isNotEmpty
+                                    ? addLabourController.searchType.value
+                                    : null,
+                                icon: Icon(
+                                  Icons.keyboard_arrow_down,
+                                  color: AppColors.searchfeild,
+                                  size: 30,
+                                ),
+                                style: GoogleFonts.inter(
+                                  fontSize: AppTextSize.textSizeSmallm,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.primaryText,
+                                ),
+                                items: ['ID', 'Name']
+                                    .map((type) => DropdownMenuItem(
+                                        value: type, child: Text(type)))
+                                    .toList(),
+                                onChanged: (String? newValue) {
+                                  if (newValue != null) {
+                                    addLabourController.searchType.value =
+                                        newValue;
+                                    print(
+                                        '---------${addLabourController.searchType.value}');
+                                    print(
+                                        '---------${addLabourController.searchType.value}');
+                                  }
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: SizeConfig.widthMultiplier * 2,
+                      ),
+
+                      //-----------------------------------------
+
+                      GestureDetector(
+                        onTap: () async {
+                          String value = searchController.text;
+
+                          if (addLabourController.searchType.value == 'ID') {
+                            print(
+                                '---------${addLabourController.searchType.value}');
+
+                            if (searchController.text.isEmpty) {
+                              Get.snackbar(
+                                "Please Enter Labour ID",
+                                "Empty Searchfeild",
+                                snackPosition: SnackPosition.TOP,
+                                duration: Duration(seconds: 3),
+                                margin: EdgeInsets.all(10),
+                              );
+                            } else {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      CustomLoadingPopup());
+
+                              await addLabourController
+                                  .getSafetyLabourDetails(value);
+                              Navigator.pop(context);
+
+                              // ignore: unnecessary_null_comparison
+                              addLabourController.selectedLabourData.value !=
+                                      null
+                                  ? Get.snackbar(
+                                      "Please Enter Correct Labour ID",
+                                      "No labour Data found",
+                                      snackPosition: SnackPosition.TOP,
+                                      duration: Duration(seconds: 3),
+                                      margin: EdgeInsets.all(10),
+                                    )
+                                  : SizedBox();
+                            }
+                          } else {
+                            print(
+                                '---------${addLabourController.searchType.value}');
+
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    CustomLoadingPopup());
+                            await addLabourController
+                                .getSafetyLabourMatchedDetails(value);
+                            Navigator.pop(context);
+
+                            if (addLabourController.searchResults.isNotEmpty &&
+                                addLabourController.searchResults.length > 1) {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    MatchedUserpopup(),
+                              );
+                            } else if (searchController.text.isEmpty) {
+                              Get.snackbar(
+                                "Please Enter Labour Name",
+                                "Empty Searchfeild",
+                                snackPosition: SnackPosition.TOP,
+                                duration: Duration(seconds: 3),
+                                margin: EdgeInsets.all(10),
+                              );
+                            } else {
+                              Get.snackbar(
+                                "Please Enter Correct Labour Name",
+                                "No labour Data found",
+                                snackPosition: SnackPosition.TOP,
+                                duration: Duration(seconds: 3),
+                                margin: EdgeInsets.all(10),
+                              );
+                            }
+                          }
+                        },
+                        child: Container(
+                            height: SizeConfig.heightMultiplier * 6.2,
+                            width: SizeConfig.widthMultiplier * 14,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                width: 1,
+                                color: AppColors.searchfeildcolor,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.search,
+                              color: AppColors.searchfeild,
+                            )),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: SizeConfig.heightMultiplier * 3,
                   ),
                   SizedBox(
                     height: SizeConfig.heightMultiplier * 1.5,
@@ -415,48 +649,21 @@ class AddLabourScreen extends StatelessWidget {
                   SizedBox(
                     height: SizeConfig.heightMultiplier * 1,
                   ),
-                  Container(
-                    decoration: BoxDecoration(),
-                    child: TextFormField(
+                  Obx(
+                    () => AppTextFormfeild(
                       controller: addLabourController.fullnameController,
+                      hintText: 'Full Name',
+                      focusNode: addLabourController.fullnameFocusNode,
+                      onFieldSubmitted: (_) {
+                        addLabourController.fullnameFocusNode.unfocus();
+                      },
+                      keyboardType: TextInputType.name,
                       textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        hintText: 'Full Name',
-                        hintStyle: TextStyle(
-                          fontSize: AppTextSize.textSizeSmall,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.searchfeild,
-                        ),
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 13, horizontal: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppColors.searchfeildcolor, width: 1),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppColors.searchfeildcolor, width: 1),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 126, 16, 9),
-                            width: 1,
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 126, 16, 9),
-                            width: 1,
-                          ),
-                        ),
-                      ),
+
+                      enabled: !addLabourController
+                          .userFound.value, // ✅ Editable only if user NOT found
+                      readOnly: addLabourController
+                          .userFound.value, // ✅ Read-only if user is found
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your full name';
@@ -465,7 +672,7 @@ class AddLabourScreen extends StatelessWidget {
                         }
                         return null;
                       },
-                      keyboardType: TextInputType.name,
+                      onChanged: (value) {},
                     ),
                   ),
                   SizedBox(
@@ -606,7 +813,10 @@ class AddLabourScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        readOnly: true, // Prevent manual input
+                        enabled: !addLabourController.userFound
+                            .value, // ✅ Editable only if user NOT found
+                        readOnly: addLabourController
+                            .userFound.value, // ✅ Read-only if user is found
                       ),
                     ),
                   ),
@@ -622,78 +832,25 @@ class AddLabourScreen extends StatelessWidget {
                   SizedBox(
                     height: SizeConfig.heightMultiplier * 1,
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Obx(
-                      () => DropdownButtonFormField<String>(
-                        // isDense: false,
+                  Obx(
+                    () => AppSearchDropdown(
+                      enabled: !addLabourController
+                          .userFound.value, // ✅ Editable only if user NOT found
 
-                        value: addLabourController
-                                .selectedBloodGroup.value.isNotEmpty
-                            ? addLabourController.selectedBloodGroup.value
-                            : null,
-                        items: addLabourController.bloodGroups
-                            .map((activity) => DropdownMenuItem(
-                                  value: activity,
-                                  child: AppTextWidget(
-                                      text: activity,
-                                      fontSize: AppTextSize.textSizeMedium,
-                                      fontWeight: FontWeight.w400,
-                                      color: AppColors.primaryText),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          //  controller.selectedActivity.value = value ?? '';
-                          addLabourController.selectedBloodGroup.value =
-                              value ?? ''; // Update selectedBloodGroup
-                        },
-                        hint: AppTextWidget(
-                          text: 'Select Blood Group',
-                          fontSize: AppTextSize.textSizeSmall,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.searchfeild,
-                        ),
-                        icon: Icon(
-                          Icons
-                              .keyboard_arrow_down, // Your custom dropdown icon
-                          color:
-                              AppColors.searchfeild, // Adjust color as needed
-                          size: 27,
-                        ),
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 13, horizontal: 12),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                                color: AppColors.searchfeildcolor, width: 1),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                                color: AppColors.searchfeildcolor, width: 1),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                              color: const Color.fromARGB(255, 126, 16, 9),
-                              width: 1,
-                            ),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                              color: const Color.fromARGB(255, 126, 16, 9),
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                      ),
+                      items: inductionTrainingController.bloodGrpTypes
+                          .map(
+                            (bloodgrp) => bloodgrp.type,
+                          )
+                          .toList(),
+                      selectedItem: addLabourController
+                              .selectedBloodGroup.value.isNotEmpty
+                          ? addLabourController.selectedBloodGroup.value
+                          : null,
+                      hintText: 'Select Blood Group',
+                      onChanged: (value) {
+                        addLabourController.selectedBloodGroup.value =
+                            value ?? '';
+                      },
                     ),
                   ),
                   SizedBox(
@@ -708,78 +865,24 @@ class AddLabourScreen extends StatelessWidget {
                   SizedBox(
                     height: SizeConfig.heightMultiplier * 1,
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Obx(
-                      () => DropdownButtonFormField<String>(
-                        // isDense: false,
+                  Obx(
+                    () => AppSearchDropdown(
+                      enabled: !addLabourController
+                          .userFound.value, // ✅ Editable only if user NOT found
 
-                        value:
-                            addLabourController.selectedreasons.value.isNotEmpty
-                                ? addLabourController.selectedreasons.value
-                                : null,
-                        items: addLabourController.reasons
-                            .map((reasons) => DropdownMenuItem(
-                                  value: reasons,
-                                  child: Text(
-                                    reasons,
-                                    style: TextStyle(
-                                        fontSize: AppTextSize.textSizeSmalle,
-                                        fontWeight: FontWeight.w400,
-                                        color: AppColors.secondaryText),
-                                  ),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          //  controller.selectedActivity.value = value ?? '';
-                        },
-                        hint: AppTextWidget(
-                          text: 'Select Reason',
-                          fontSize: AppTextSize.textSizeSmall,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.searchfeild,
-                        ),
-                        icon: Icon(
-                          Icons
-                              .keyboard_arrow_down, // Your custom dropdown icon
-                          color:
-                              AppColors.searchfeild, // Adjust color as needed
-                          size: 27,
-                        ),
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 13, horizontal: 12),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                                color: AppColors.searchfeildcolor, width: 1),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                                color: AppColors.searchfeildcolor, width: 1),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                              color: const Color.fromARGB(255, 126, 16, 9),
-                              width: 1,
-                            ),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                              color: const Color.fromARGB(255, 126, 16, 9),
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                      ),
+                      items: inductionTrainingController.reasonForVisitList
+                          .map(
+                            (reason) => reason.listDetails,
+                          )
+                          .toList(),
+                      selectedItem:
+                          addLabourController.selectedreasons.value.isNotEmpty
+                              ? addLabourController.selectedreasons.value
+                              : null,
+                      hintText: 'Select Reason',
+                      onChanged: (value) {
+                        addLabourController.selectedreasons.value = value ?? '';
+                      },
                     ),
                   ),
                   SizedBox(
@@ -803,48 +906,24 @@ class AddLabourScreen extends StatelessWidget {
                   SizedBox(
                     height: SizeConfig.heightMultiplier * 1,
                   ),
-                  Container(
-                    decoration: BoxDecoration(),
-                    child: TextFormField(
+                  Obx(
+                    () => AppTextFormfeild(
                       controller: addLabourController.contactnumberController,
+                      hintText: 'Contact Number',
+                      keyboardType: TextInputType.name,
                       textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        hintText: 'Contact Number',
-                        hintStyle: TextStyle(
-                          fontSize: AppTextSize.textSizeSmall,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.searchfeild,
-                        ),
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 13, horizontal: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppColors.searchfeildcolor, width: 1),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppColors.searchfeildcolor, width: 1),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 126, 16, 9),
-                            width: 1,
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 126, 16, 9),
-                            width: 1,
-                          ),
-                        ),
-                      ),
+                      enabled: !addLabourController
+                          .userFound.value, // ✅ Editable only if user NOT found
+                      readOnly: addLabourController
+                          .userFound.value, // ✅ Read-only if user is found
+
+                      validator: (value) {
+                        return null;
+                      },
+                      onFieldSubmitted: (_) {
+                        addLabourController.contactFocusNode.unfocus();
+                      },
+                      onChanged: (value) {},
                     ),
                   ),
                   SizedBox(
@@ -895,49 +974,166 @@ class AddLabourScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-
                         Obx(() => addLabourController.isExpanded.value
                             ? Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: List.generate(6, (index) {
-                                  return Column(
+                                children: [
+                                  Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
+                                    children: List.generate(4, (index) {
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(
+                                              height:
+                                                  SizeConfig.heightMultiplier *
+                                                      1),
+                                          AppTextWidget(
+                                            text: addLabourController
+                                                .addressLabels[index],
+                                            fontSize: AppTextSize.textSizeSmall,
+                                            fontWeight: FontWeight.w500,
+                                            color: AppColors.primaryText,
+                                          ),
+                                          SizedBox(
+                                              height:
+                                                  SizeConfig.heightMultiplier *
+                                                      1),
+                                          buildTextField(
+                                            context,
+                                            "Enter ${addLabourController.addressLabels[index]}",
+                                            index,
+                                          ),
+                                          SizedBox(height: 20),
+                                        ],
+                                      );
+                                    }),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      SizedBox(
-                                          height:
-                                              SizeConfig.heightMultiplier * 1),
                                       AppTextWidget(
-                                        text: addLabourController
-                                            .addressLabels[index],
+                                        text: 'State',
                                         fontSize: AppTextSize.textSizeSmall,
                                         fontWeight: FontWeight.w500,
                                         color: AppColors.primaryText,
                                       ),
-                                      SizedBox(
-                                          height:
-                                              SizeConfig.heightMultiplier * 1),
-                                      buildTextField(
-                                        "Enter ${addLabourController.addressLabels[index]}",
-                                        index,
-                                      ),
-                                      SizedBox(height: 20),
                                     ],
-                                  );
-                                }),
-                              )
-                            : SizedBox()), // Empty SizedBox when collapsed
+                                  ),
+                                  SizedBox(
+                                      height: SizeConfig.heightMultiplier * 1),
+                                  AppSearchDropdown(
+                                    enabled: !addLabourController.userFound
+                                        .value, // ✅ Editable only if user NOT found
 
-                        SizedBox(height: SizeConfig.heightMultiplier * 2),
+                                    items: inductionTrainingController.stateList
+                                        .map(
+                                          (state) => state.stateName,
+                                        )
+                                        .toList(),
+                                    selectedItem: addLabourController
+                                            .selectedState.value.isNotEmpty
+                                        ? addLabourController
+                                            .selectedState.value
+                                        : null,
+                                    hintText: 'Select District',
+                                    onChanged: (value) {
+                                      addLabourController.selectedState.value =
+                                          value ?? '';
+                                    },
+                                  ),
+                                  SizedBox(
+                                      height: SizeConfig.heightMultiplier * 2),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      AppTextWidget(
+                                        text: 'District',
+                                        fontSize: AppTextSize.textSizeSmall,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.primaryText,
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                      height: SizeConfig.heightMultiplier * 1),
+                                  AppSearchDropdown(
+                                    enabled: !addLabourController.userFound
+                                        .value, // ✅ Editable only if user NOT found
+
+                                    items: inductionTrainingController
+                                        .districtList
+                                        .map(
+                                            (district) => district.districtName)
+                                        .toList(),
+                                    selectedItem: addLabourController
+                                            .selectedDistrict.value.isNotEmpty
+                                        ? addLabourController
+                                            .selectedDistrict.value
+                                        : null,
+                                    hintText: 'Select District',
+                                    onChanged: (value) {
+                                      addLabourController
+                                          .selectedDistrict.value = value ?? '';
+                                    },
+                                  ),
+                                  SizedBox(
+                                      height: SizeConfig.heightMultiplier * 1),
+                                ],
+                              )
+                            : SizedBox()),
+                        SizedBox(height: 12),
                       ],
                     ),
                   ),
                   SizedBox(
-                    height: SizeConfig.heightMultiplier * 3,
+                    height: SizeConfig.heightMultiplier * 1.5,
+                  ),
+                  Obx(
+                    () => addLabourController.userFound.value
+                        ? SizedBox(height: 20)
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              addLabourController.userFound.value
+                                  ? Checkbox(
+                                      activeColor: AppColors.buttoncolor,
+                                      side: BorderSide(
+                                        color: AppColors.secondaryText,
+                                        width: 1.2,
+                                      ),
+                                      value: true,
+                                      onChanged: (value) {},
+                                    )
+                                  : Obx(() => Checkbox(
+                                        activeColor: AppColors.buttoncolor,
+                                        side: BorderSide(
+                                          color: AppColors.secondaryText,
+                                          width: 1.2,
+                                        ),
+                                        value: addLabourController
+                                            .isSameAsCurrent.value,
+                                        onChanged: (value) {
+                                          addLabourController
+                                              .toggleSameAsCurrent(value!);
+                                        },
+                                      )),
+                              AppTextWidget(
+                                text: "Same as Current Address",
+                                fontSize: AppTextSize.textSizeSmall,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.primaryText,
+                              ),
+                            ],
+                          ),
+                  ),
+                  SizedBox(
+                    height: SizeConfig.heightMultiplier * 1,
                   ),
                   Container(
                     padding: EdgeInsets.only(
-                        left: 16, right: 16, top: 13, bottom: 6),
+                        left: 16, right: 16, top: 12, bottom: 4),
                     decoration: BoxDecoration(
                       border: Border.all(color: AppColors.searchfeildcolor),
                       borderRadius: BorderRadius.circular(8),
@@ -951,25 +1147,23 @@ class AddLabourScreen extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    AppTextWidget(
-                                      text: 'Permanent Address',
-                                      fontSize: AppTextSize.textSizeSmall,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.primaryText,
-                                    ),
-                                    AppTextWidget(
-                                      text: AppTexts.star,
-                                      fontSize: AppTextSize.textSizeExtraSmall,
-                                      fontWeight: FontWeight.w400,
-                                      color: AppColors.starcolor,
-                                    ),
-                                  ],
-                                ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  AppTextWidget(
+                                    text: 'Permanent Address',
+                                    fontSize: AppTextSize.textSizeSmall,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.primaryText,
+                                  ),
+                                  AppTextWidget(
+                                    text: AppTexts.star,
+                                    fontSize: AppTextSize.textSizeExtraSmall,
+                                    fontWeight: FontWeight.w400,
+                                    color: AppColors.starcolor,
+                                  ),
+                                ],
                               ),
                               Icon(
                                 Icons
@@ -984,32 +1178,124 @@ class AddLabourScreen extends StatelessWidget {
                         SizedBox(height: SizeConfig.heightMultiplier * 1),
                         Obx(() => addLabourController.isExpanded2.value
                             ? Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: List.generate(6, (index) {
-                                  return Column(
+                                children: [
+                                  Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
+                                    children: List.generate(4, (index) {
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          AppTextWidget(
+                                            text: addLabourController
+                                                .addresspermanantLabels[index],
+                                            fontSize: AppTextSize.textSizeSmall,
+                                            fontWeight: FontWeight.w500,
+                                            color: AppColors.primaryText,
+                                          ),
+                                          SizedBox(
+                                              height:
+                                                  SizeConfig.heightMultiplier *
+                                                      1),
+                                          buildTextField2(
+                                            context,
+                                            "Enter ${addLabourController.addresspermanantLabels[index]}",
+                                            index,
+                                          ),
+                                          SizedBox(height: 20),
+                                        ],
+                                      );
+                                    }),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       AppTextWidget(
-                                        text: addLabourController
-                                            .addresspermanantLabels[index],
+                                        text: 'State',
                                         fontSize: AppTextSize.textSizeSmall,
                                         fontWeight: FontWeight.w500,
                                         color: AppColors.primaryText,
                                       ),
-                                      SizedBox(
-                                          height:
-                                              SizeConfig.heightMultiplier * 1),
-                                      buildTextField2(
-                                        "Enter ${addLabourController.addresspermanantLabels[index]}",
-                                        index,
-                                      ),
-                                      SizedBox(height: 20),
                                     ],
-                                  );
-                                }),
+                                  ),
+                                  SizedBox(
+                                      height: SizeConfig.heightMultiplier * 1),
+                                  Obx(
+                                    () => AppSearchDropdown(
+                                      items:
+                                          inductionTrainingController.stateList
+                                              .map(
+                                                (state) => state.stateName,
+                                              )
+                                              .toList(),
+                                      selectedItem: addLabourController
+                                              .selectedPermanantState
+                                              .value
+                                              .isNotEmpty
+                                          ? addLabourController
+                                              .selectedPermanantState.value
+                                          : null,
+                                      enabled: !addLabourController.userFound
+                                          .value, // ✅ Editable only if user NOT found
+
+                                      hintText: 'Select State',
+                                      onChanged: (value) {
+                                        addLabourController
+                                            .selectedPermanantState
+                                            .value = value ?? '';
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(
+                                      height: SizeConfig.heightMultiplier * 2),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      AppTextWidget(
+                                        text: 'District',
+                                        fontSize: AppTextSize.textSizeSmall,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.primaryText,
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                      height: SizeConfig.heightMultiplier * 1),
+                                  Obx(
+                                    () => AppSearchDropdown(
+                                      items: inductionTrainingController
+                                          .districtList
+                                          .map(
+                                            (district) => district.districtName,
+                                          )
+                                          .toList(),
+                                      selectedItem: addLabourController
+                                              .selectedPermanantDistrict
+                                              .value
+                                              .isNotEmpty
+                                          ? addLabourController
+                                              .selectedPermanantDistrict.value
+                                          : null,
+                                      // enabled: !addLabourController
+                                      //         .isSameAsCurrent.value &&
+                                      //     !addLabourController.userFound
+                                      //         .value, // ✅ Updated Condition
+                                      enabled: !addLabourController.userFound
+                                          .value, // ✅ Editable only if user NOT found
+
+                                      hintText: 'Select District',
+                                      onChanged: (value) {
+                                        addLabourController
+                                            .selectedPermanantDistrict
+                                            .value = value ?? '';
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(height: 20),
+                                ],
                               )
-                            : SizedBox()), // Empty SizedBox when collapsed
+                            : SizedBox()),
                       ],
                     ),
                   ),
@@ -1043,48 +1329,25 @@ class AddLabourScreen extends StatelessWidget {
                   SizedBox(
                     height: SizeConfig.heightMultiplier * 1,
                   ),
-                  Container(
-                    decoration: BoxDecoration(),
-                    child: TextFormField(
+                  Obx(
+                    () => AppTextFormfeild(
                       controller: addLabourController.econtactnameController,
+                      hintText: 'Emergency contact name',
+                      focusNode: addLabourController.econtactnameFocusNode,
+                      onFieldSubmitted: (_) {
+                        addLabourController.econtactnameFocusNode.unfocus();
+                      },
+                      keyboardType: TextInputType.name,
                       textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        hintText: 'Emergency contact name',
-                        hintStyle: TextStyle(
-                          fontSize: AppTextSize.textSizeSmall,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.searchfeild,
-                        ),
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 13, horizontal: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppColors.searchfeildcolor, width: 1),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppColors.searchfeildcolor, width: 1),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 126, 16, 9),
-                            width: 1,
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 126, 16, 9),
-                            width: 1,
-                          ),
-                        ),
-                      ),
+                      enabled: !addLabourController
+                          .userFound.value, // ✅ Editable only if user NOT found
+                      readOnly: addLabourController
+                          .userFound.value, // ✅ Read-only if user is found
+
+                      validator: (value) {
+                        return null;
+                      },
+                      onChanged: (value) {},
                     ),
                   ),
                   SizedBox(
@@ -1108,48 +1371,25 @@ class AddLabourScreen extends StatelessWidget {
                   SizedBox(
                     height: SizeConfig.heightMultiplier * 1,
                   ),
-                  Container(
-                    decoration: BoxDecoration(),
-                    child: TextFormField(
+                  Obx(
+                    () => AppTextFormfeild(
                       controller: addLabourController.econtactnumberController,
+                      hintText: 'Emergency contact number',
+                      focusNode: addLabourController.econtactnumberFocusNode,
+                      onFieldSubmitted: (_) {
+                        addLabourController.econtactnumberFocusNode.unfocus();
+                      },
+                      keyboardType: TextInputType.name,
                       textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        hintText: 'Emergency contact number',
-                        hintStyle: TextStyle(
-                          fontSize: AppTextSize.textSizeSmall,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.searchfeild,
-                        ),
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 13, horizontal: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppColors.searchfeildcolor, width: 1),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppColors.searchfeildcolor, width: 1),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 126, 16, 9),
-                            width: 1,
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 126, 16, 9),
-                            width: 1,
-                          ),
-                        ),
-                      ),
+                      enabled: !addLabourController
+                          .userFound.value, // ✅ Editable only if user NOT found
+                      readOnly: addLabourController
+                          .userFound.value, // ✅ Read-only if user is found
+
+                      validator: (value) {
+                        return null;
+                      },
+                      onChanged: (value) {},
                     ),
                   ),
                   SizedBox(
@@ -1173,79 +1413,26 @@ class AddLabourScreen extends StatelessWidget {
                   SizedBox(
                     height: SizeConfig.heightMultiplier * 1,
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Obx(
-                      () => DropdownButtonFormField<String>(
-                        // isDense: false,
+                  Obx(
+                    () => AppTextFormfeild(
+                      controller:
+                          addLabourController.econtactrelationController,
+                      hintText: 'Emergency contact relation',
+                      focusNode: addLabourController.econtactrelationFocusNode,
+                      onFieldSubmitted: (_) {
+                        addLabourController.econtactrelationFocusNode.unfocus();
+                      },
+                      keyboardType: TextInputType.name,
+                      textInputAction: TextInputAction.next,
+                      enabled: !addLabourController
+                          .userFound.value, // ✅ Editable only if user NOT found
+                      readOnly: addLabourController
+                          .userFound.value, // ✅ Read-only if user is found
 
-                        value: addLabourController
-                                .selectedrelation.value.isNotEmpty
-                            ? addLabourController.selectedrelation.value
-                            : null,
-                        items: addLabourController.relations
-                            .map((relations) => DropdownMenuItem(
-                                  value: relations,
-                                  child: Text(
-                                    relations,
-                                    style: TextStyle(
-                                        fontSize: AppTextSize.textSizeSmalle,
-                                        fontWeight: FontWeight.w400,
-                                        color: AppColors.secondaryText),
-                                  ),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          addLabourController.selectedrelation.value =
-                              value ?? '';
-                        },
-                        hint: AppTextWidget(
-                          text: 'Emergency contact relation',
-                          fontSize: AppTextSize.textSizeSmall,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.searchfeild,
-                        ),
-                        icon: Icon(
-                          Icons
-                              .keyboard_arrow_down, // Your custom dropdown icon
-                          color:
-                              AppColors.searchfeild, // Adjust color as needed
-                          size: 27,
-                        ),
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 13, horizontal: 12),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                                color: AppColors.searchfeildcolor, width: 1),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                                color: AppColors.searchfeildcolor, width: 1),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                              color: const Color.fromARGB(255, 126, 16, 9),
-                              width: 1,
-                            ),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                              color: const Color.fromARGB(255, 126, 16, 9),
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                      ),
+                      validator: (value) {
+                        return null;
+                      },
+                      onChanged: (value) {},
                     ),
                   ),
                   SizedBox(height: SizeConfig.heightMultiplier * 5),

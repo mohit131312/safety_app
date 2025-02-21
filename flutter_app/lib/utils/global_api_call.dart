@@ -14,7 +14,7 @@ Future globApiCall(String url, map) async {
   var response = await RemoteServices.postMethodWithToken(url, map);
 
   if (response.statusCode == 200) {
-    log('--------------------${jsonDecode(response.body)}');
+    //  log('--------------------${jsonDecode(response.body)}');
     Map<String, dynamic> responseData = jsonDecode(response.body);
     if (responseData['status'] == false) {
       if (responseData['message'] == "User not found") {

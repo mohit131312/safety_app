@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/components/app_elevated_button.dart';
 import 'package:flutter_app/components/app_text_widget.dart';
-import 'package:flutter_app/features/work_permit_all/work_permit_maker/work_permit_details/work_permit_details_screen.dart';
+import 'package:flutter_app/features/home/home_screen.dart';
 import 'package:flutter_app/utils/app_color.dart';
 import 'package:flutter_app/utils/app_textsize.dart';
 import 'package:flutter_app/utils/size_config.dart';
 import 'package:get/get.dart';
+
+import '../../../select_project/select_project_screen.dart';
 
 class WorkSubmitScreen extends StatelessWidget {
   const WorkSubmitScreen({super.key});
@@ -59,7 +61,18 @@ class WorkSubmitScreen extends StatelessWidget {
                     child: AppElevatedButton(
                         text: 'Done',
                         onPressed: () {
-                          Get.to(WorkPermitDetailsScreen());
+                          //         Get.to(WorkPermitDetailsScreen());
+                          Get.offUntil(
+                            GetPageRoute(
+                                page: () => HomeScreen()), // Push new screen
+                            (route) {
+                              if (route is GetPageRoute) {
+                                return route.page!().runtimeType ==
+                                    SelectProjectScreen;
+                              }
+                              return false;
+                            },
+                          );
                         })),
                 SizedBox(height: SizeConfig.heightMultiplier * 5),
               ],

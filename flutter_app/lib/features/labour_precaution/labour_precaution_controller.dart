@@ -1,130 +1,162 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_app/features/induction_training/induction_training_add_model.dart';
+import 'package:flutter_app/features/induction_training/induction_training_controller.dart';
 import 'package:get/get.dart';
 
 class LabourPrecautionController extends GetxController {
-  RxBool isCheckedEquipment = false.obs;
-  var searchQueryEquiment = ''.obs;
-  var filteredDetailsEquipment = [].obs;
-  final TextEditingController searchController = TextEditingController();
-  final TextEditingController searchControllerInstruction =
+  RxList<IdProofList> filteredDetailsEquipment = <IdProofList>[].obs;
+  final TextEditingController searchControllerEquipment =
       TextEditingController();
+  final InductionTrainingController inductionTrainingController =
+      Get.put(InductionTrainingController());
 
   @override
   void onInit() {
     super.onInit();
-    filteredDetailsEquipment.assignAll(checklist);
-    filteredDetailsInstruction.assignAll(checklistInstruction);
+    filteredDetailsEquipment
+        .assignAll(inductionTrainingController.safetyEquipmentList.toList());
+    filteredDetailsInstruction
+        .assignAll(inductionTrainingController.instructionsList.toList());
+    selectedItemInstruction.clear();
+    selectedItemIds.clear();
+
+    log('----------------------filteredDetailsEquipment: ${filteredDetailsEquipment}');
+    log('----------------------filteredDetailsInstruction: ${filteredDetailsInstruction}');
+  }
+
+  var searchQueryEquipment = ''.obs;
+  RxList<int> selectedItemIds = <int>[].obs;
+  RxBool isSelectAll = false.obs;
+
+  void searchDataEquipment(String query) {
+    searchQueryEquipment.value = query;
+
+    if (query.isEmpty) {
+      filteredDetailsEquipment
+          .assignAll(inductionTrainingController.safetyEquipmentList.toList());
+    } else {
+      filteredDetailsEquipment.assignAll(
+        inductionTrainingController.safetyEquipmentList
+            .where((item) =>
+                item.listDetails.toLowerCase().contains(query.toLowerCase()))
+            .toList(),
+      );
+    }
+
+    // Preserve all selected items globally (do not reset selectedItemIds)
+    log('Search Query: $query');
+    log('Filtered Equipment List: ${filteredDetailsEquipment}');
+    log('---------------- inductionTrainingController.safetyEquipmentList------${inductionTrainingController.safetyEquipmentList}');
+    log('Selected Items: $selectedItemIds');
   }
 
   List<Map<String, dynamic>> getSelectedEquipment() {
-    return List<Map<String, dynamic>>.from(
-      filteredDetailsEquipment.where((item) => item['isChecked'] == true),
-    );
-  }
-
-  List<Map<String, dynamic>> getSelectedInstruction() {
-    return List<Map<String, dynamic>>.from(
-      filteredDetailsInstruction.where((item) => item['isChecked'] == true),
-    );
-  }
-
-  var checklist = [
-    {'title': 'Safety Googles', 'isChecked': false},
-    {'title': 'Ear Plug', 'isChecked': false},
-    {'title': 'Face Shield', 'isChecked': false},
-    {'title': 'Safety Shoes', 'isChecked': false},
-    {'title': 'Safety Helmet', 'isChecked': false},
-    {'title': 'Safety Jacket', 'isChecked': false},
-  ];
-
-  void toggleCheckbox(int index) {
-    filteredDetailsEquipment[index]['isChecked'] =
-        !filteredDetailsEquipment[index]['isChecked'];
-    filteredDetailsEquipment.refresh();
+    return filteredDetailsEquipment
+        .where((item) =>
+            selectedItemIds.contains(item.id)) // Check if item is selected
+        .map((item) => {
+              "id": item.id,
+              "title": item.listDetails,
+            })
+        .toList();
   }
 
   void toggleSelectAll() {
-    bool newValue = !isCheckedEquipment.value;
-    isCheckedEquipment.value = newValue;
-
-    for (var item in filteredDetailsEquipment) {
-      item['isChecked'] = newValue;
-    }
-    filteredDetailsEquipment.refresh();
-  }
-
-  // void updateSelectAllCheckbox() {
-  //   bool allChecked =
-  //       filteredDetailsEquipment.every((item) => item['isChecked'] == true);
-  //   isCheckedEquipment.value = allChecked;
-  // }
-
-  void searchData(String query) {
-    searchQueryEquiment.value = query;
-    if (query.isEmpty) {
-      filteredDetailsEquipment.assignAll(checklist);
+    if (isSelectAll.value) {
+      selectedItemIds.clear();
     } else {
-      filteredDetailsEquipment.assignAll(
-        filteredDetailsEquipment
-            .where((item) => item['title']
-                .toString()
-                .toLowerCase()
-                .contains(query.toLowerCase()))
+      selectedItemIds.assignAll(
+        inductionTrainingController.safetyEquipmentList
+            .map((e) => e.id)
             .toList(),
       );
     }
+    isSelectAll.value = selectedItemIds.length ==
+        inductionTrainingController.safetyEquipmentList.length;
+    log('Selected Items: $selectedItemIds');
+  }
+
+  void toggleSelection(int id) {
+    if (selectedItemIds.contains(id)) {
+      selectedItemIds.remove(id);
+    } else {
+      selectedItemIds.add(id);
+    }
+
+    // Update "Select All" state based on the full list
+    isSelectAll.value = selectedItemIds.length ==
+        inductionTrainingController.safetyEquipmentList.length;
+    log('Selected Items: $selectedItemIds');
   }
 
   //---------------------------Instruction Given
+  RxList<InstructionsListElement> filteredDetailsInstruction =
+      <InstructionsListElement>[].obs;
 
-  RxBool isCheckedInstruction = false.obs;
+  final TextEditingController searchControllerInstruction =
+      TextEditingController();
+
   var searchQueryInstruction = ''.obs;
-  var filteredDetailsInstruction = [].obs;
-
-  var checklistInstruction = [
-    {'title': 'Site Introduction', 'isChecked': false},
-    {'title': 'General Safety', 'isChecked': false},
-    {'title': 'Proper Use of PPEs', 'isChecked': false},
-    {'title': 'Height Work', 'isChecked': false},
-    {'title': 'Hot Work', 'isChecked': false},
-    {'title': 'Incident/Accident Reporting', 'isChecked': false},
-  ];
-
-  void toggleCheckboxInstruction(int index) {
-    filteredDetailsInstruction[index]['isChecked'] =
-        !filteredDetailsInstruction[index]['isChecked'];
-    filteredDetailsInstruction.refresh();
-  }
-
-  void toggleSelectInstructionAll() {
-    bool newValue = !isCheckedInstruction.value;
-    isCheckedInstruction.value = newValue;
-
-    for (var item in filteredDetailsInstruction) {
-      item['isChecked'] = newValue;
-    }
-    filteredDetailsInstruction.refresh();
-  }
-
-  // void updateSelectInstructionAllCheckbox() {
-  //   bool allChecked =
-  //       filteredDetailsInstruction.every((item) => item['isChecked'] == true);
-  //   isCheckedInstruction.value = allChecked;
-  // }
+  RxList<int> selectedItemInstruction = <int>[].obs;
+  RxBool isSelectAllInstruction = false.obs;
 
   void searchDataInstruction(String query) {
     searchQueryInstruction.value = query;
+
     if (query.isEmpty) {
-      filteredDetailsInstruction.assignAll(checklistInstruction);
+      filteredDetailsInstruction
+          .assignAll(inductionTrainingController.instructionsList.toList());
     } else {
       filteredDetailsInstruction.assignAll(
-        checklistInstruction
-            .where((item) => item['title']
-                .toString()
+        inductionTrainingController.instructionsList
+            .where((item) => item.inductionDetails
                 .toLowerCase()
                 .contains(query.toLowerCase()))
             .toList(),
       );
     }
+
+    log('Search Query: $query');
+    log('Filtered filteredDetailsInstruction List: ${filteredDetailsInstruction}');
+    log('---------------- inductionTrainingController.InstructionList------${inductionTrainingController.safetyEquipmentList}');
+    log('Selected selectedItemInstruction: $selectedItemInstruction');
+  }
+
+  List<Map<String, dynamic>> getSelectedInstruction() {
+    return filteredDetailsInstruction
+        .where((item) => selectedItemInstruction.contains(item.id))
+        .map((item) => {
+              "id": item.id,
+              "title": item.inductionDetails,
+            })
+        .toList();
+  }
+
+  void toggleSelectAllInstruction() {
+    if (isSelectAllInstruction.value) {
+      selectedItemInstruction.clear();
+    } else {
+      selectedItemInstruction.assignAll(
+        inductionTrainingController.instructionsList.map((e) => e.id).toList(),
+      );
+    }
+    isSelectAllInstruction.value = selectedItemInstruction.length ==
+        inductionTrainingController.instructionsList.length;
+    log('Selected selectedItemInstruction: $selectedItemInstruction');
+  }
+
+  void toggleSelectionInstruction(int id) {
+    if (selectedItemInstruction.contains(id)) {
+      selectedItemInstruction.remove(id);
+    } else {
+      selectedItemInstruction.add(id);
+    }
+
+    // Update "Select All" state based on the full list
+    isSelectAllInstruction.value = selectedItemInstruction.length ==
+        inductionTrainingController.instructionsList.length;
+    log('Selected selectedItemInstruction: $selectedItemInstruction');
   }
 }

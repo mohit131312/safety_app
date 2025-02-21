@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_app/components/app_medium_button.dart';
+import 'package:flutter_app/components/app_search_dropdown.dart';
 import 'package:flutter_app/components/app_text_widget.dart';
+import 'package:flutter_app/components/app_textformfeild.dart';
+import 'package:flutter_app/features/induction_training/induction_training_controller.dart';
 import 'package:flutter_app/features/labour_documentation/labour_documentation_controller.dart';
 import 'package:flutter_app/features/labour_precaution/labour_precaustion_screen.dart';
-import 'package:flutter_app/features/toolbox_training_all/toolbox_t_details/toolbox_t_details_controller.dart';
 import 'package:flutter_app/utils/app_color.dart';
 import 'package:flutter_app/utils/app_texts.dart';
 import 'package:flutter_app/utils/app_textsize.dart';
@@ -15,9 +17,8 @@ import 'package:get/get.dart';
 // ignore: must_be_immutable
 class LabourDocumentation extends StatelessWidget {
   LabourDocumentation({super.key});
-  final ToolboxTDetailsController controller =
-      Get.put(ToolboxTDetailsController());
-
+  final InductionTrainingController inductionTrainingController =
+      Get.put(InductionTrainingController());
   final LabourDocumentationController labourDocumentationController =
       Get.put(LabourDocumentationController());
   @override
@@ -323,50 +324,20 @@ class LabourDocumentation extends StatelessWidget {
                   ),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: TextFormField(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12)),
+                    child: AppTextFormfeild(
                       controller:
                           labourDocumentationController.adharnoController,
+                      hintText: 'Enter ID number',
+                      keyboardType: TextInputType.name,
                       textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        hintText: 'Enter ID number',
-                        hintStyle: TextStyle(
-                          fontSize: AppTextSize.textSizeSmall,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.searchfeild,
-                        ),
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 13, horizontal: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppColors.searchfeildcolor, width: 1),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppColors.searchfeildcolor, width: 1),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 126, 16, 9),
-                            width: 1,
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 126, 16, 9),
-                            width: 1,
-                          ),
-                        ),
-                      ),
+                      enabled: true, // Set to false to disable the field
+                      readOnly:
+                          false, // Set to true if you don't want it editable
+                      validator: (value) {
+                        return null;
+                      },
                     ),
                   ),
                   SizedBox(
@@ -413,77 +384,27 @@ class LabourDocumentation extends StatelessWidget {
                   ),
                   Container(
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.white),
-                    child: Obx(
-                      () => DropdownButtonFormField<String>(
-                        // isDense: false,
-
-                        value: controller.selectedActivity.value.isNotEmpty
-                            ? controller.selectedActivity.value
-                            : null,
-                        items: controller.activities
-                            .map((activity) => DropdownMenuItem(
-                                  value: activity,
-                                  child: Text(
-                                    activity,
-                                    style: TextStyle(
-                                        fontSize: AppTextSize.textSizeSmalle,
-                                        fontWeight: FontWeight.w400,
-                                        color: AppColors.secondaryText),
-                                  ),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          //  controller.selectedActivity.value = value ?? '';
-                        },
-                        hint: AppTextWidget(
-                          text: 'Select document type',
-                          fontSize: AppTextSize.textSizeSmall,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.searchfeild,
-                        ),
-                        icon: Icon(
-                          Icons
-                              .keyboard_arrow_down, // Your custom dropdown icon
-                          color:
-                              AppColors.searchfeild, // Adjust color as needed
-                          size: 27,
-                        ),
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 13, horizontal: 12),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                                color: AppColors.searchfeildcolor, width: 1),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                                color: AppColors.searchfeildcolor, width: 1),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                              color: const Color.fromARGB(255, 126, 16, 9),
-                              width: 1,
-                            ),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                              color: const Color.fromARGB(255, 126, 16, 9),
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                      ),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12)),
+                    child: AppSearchDropdown(
+                      items: inductionTrainingController.idProofList
+                          .map(
+                            (idproof) => idproof.listDetails,
+                          )
+                          .toList(),
+                      selectedItem: labourDocumentationController
+                              .selectedDoctType.value.isNotEmpty
+                          ? labourDocumentationController.selectedDoctType.value
+                          : null,
+                      hintText: 'Select document type',
+                      onChanged: (value) {
+                        labourDocumentationController.selectedDoctType.value =
+                            value ?? '';
+                      },
                     ),
                   ),
+                  //------------------------------
+
                   SizedBox(
                     height: SizeConfig.heightMultiplier * 2,
                   ),
@@ -669,54 +590,27 @@ class LabourDocumentation extends StatelessWidget {
                   ),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: TextFormField(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12)),
+                    child: AppTextFormfeild(
                       controller: labourDocumentationController.idnoController,
+
+                      hintText: 'Enter ID number',
+                      keyboardType: TextInputType.name,
                       textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        hintText: 'Enter ID number',
-                        hintStyle: TextStyle(
-                          fontSize: AppTextSize.textSizeSmall,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.searchfeild,
-                        ),
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 13, horizontal: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppColors.searchfeildcolor, width: 1),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppColors.searchfeildcolor, width: 1),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 126, 16, 9),
-                            width: 1,
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 126, 16, 9),
-                            width: 1,
-                          ),
-                        ),
-                      ),
+                      enabled: true, // Set to false to disable the field
+                      readOnly:
+                          false, // Set to true if you don't want it editable
+                      validator: (value) {
+                        return null;
+                      },
                     ),
                   ),
+
                   SizedBox(
                     height: SizeConfig.heightMultiplier * 2,
                   ),
+
                   AppTextWidget(
                       text: AppTexts.validity,
                       fontSize: AppTextSize.textSizeSmall,
@@ -727,52 +621,23 @@ class LabourDocumentation extends StatelessWidget {
                   ),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: TextFormField(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12)),
+                    child: AppTextFormfeild(
                       controller:
                           labourDocumentationController.validityController,
+                      hintText: 'Enter validity',
+                      keyboardType: TextInputType.name,
                       textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        hintText: 'Enter validity',
-                        hintStyle: TextStyle(
-                          fontSize: AppTextSize.textSizeSmall,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.searchfeild,
-                        ),
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 13, horizontal: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppColors.searchfeildcolor, width: 1),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppColors.searchfeildcolor, width: 1),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 126, 16, 9),
-                            width: 1,
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 126, 16, 9),
-                            width: 1,
-                          ),
-                        ),
-                      ),
+                      enabled: true, // Set to false to disable the field
+                      readOnly:
+                          false, // Set to true if you don't want it editable
+                      validator: (value) {
+                        return null;
+                      },
                     ),
                   ),
+
                   SizedBox(
                     height: SizeConfig.heightMultiplier * 2,
                   ),
@@ -979,11 +844,14 @@ class LabourDocumentation extends StatelessWidget {
                                   SizedBox(
                                     height: SizeConfig.heightMultiplier * 1,
                                   ),
-                                  AppTextWidget(
-                                      text: AppTexts.adharCard,
-                                      fontSize: AppTextSize.textSizeSmall,
-                                      fontWeight: FontWeight.w400,
-                                      color: AppColors.primaryText),
+                                  Obx(
+                                    () => AppTextWidget(
+                                        text: labourDocumentationController
+                                            .selectedDoctType.value,
+                                        fontSize: AppTextSize.textSizeSmall,
+                                        fontWeight: FontWeight.w400,
+                                        color: AppColors.primaryText),
+                                  ),
                                   SizedBox(
                                     height: SizeConfig.heightMultiplier * 2.5,
                                   ),
